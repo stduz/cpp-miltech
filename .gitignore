@@ -1,0 +1,11 @@
+﻿# Збірка
+build/
+*.o
+*.out
+*.exe
+
+# VS Code (особисті налаштування)
+.vscode/
+
+# macOS
+.DS_Store
