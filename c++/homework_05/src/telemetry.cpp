@@ -33,7 +33,6 @@ int split_line(char line[], char* fields[], int max_fields) {
     return count;
 }
 
-// fix: замість abort() — повідомлення в stderr і нормальний вихід
 long parse_long(const char* text, int line_number) {
     char* end = nullptr;
     const long value = std::strtol(text, &end, 10);
@@ -62,7 +61,6 @@ double parse_double(const char* text, int line_number) {
     return value;
 }
 
-// fix: перевіряємо field_count перед тим як звертатись до полів
 Frame parse_frame(char line[], int line_number) {
     char* fields[EXPECTED_FIELD_COUNT] = {};
     const int field_count = split_line(line, fields, EXPECTED_FIELD_COUNT);
@@ -84,7 +82,29 @@ Frame parse_frame(char line[], int line_number) {
     return frame;
 }
 
-// fix: ділення на нуль коли elapsed_ms == 0
+static void validate_frame(const Frame& frame, int line_number) {
+    if (frame.voltage_v <= 0.0) {
+        std::cerr << "error: non-positive voltage at line " << line_number
+                  << ": " << frame.voltage_v << '\n';
+        std::exit(1);
+    }
+    if (frame.gps_fix != 0 && frame.gps_fix != 1) {
+        std::cerr << "error: invalid gps_fix at line " << line_number
+                  << ": " << frame.gps_fix << '\n';
+        std::exit(1);
+    }
+    if (frame.temperature_c < -40.0 || frame.temperature_c > 85.0) {
+        std::cerr << "error: temperature out of range at line " << line_number
+                  << ": " << frame.temperature_c << '\n';
+        std::exit(1);
+    }
+    if (frame.satellites < 0) {
+        std::cerr << "error: negative satellites at line " << line_number
+                  << ": " << frame.satellites << '\n';
+        std::exit(1);
+    }
+}
+
 double compute_frame_rate_hz(const Frame frames[], int frame_count) {
     const long elapsed_ms = frames[frame_count - 1].timestamp_ms - frames[0].timestamp_ms;
 
@@ -115,7 +135,15 @@ int read_frames(const char* path, Frame frames[], int max_frames) {
         }
 
         if (frame_count < max_frames) {
-            frames[frame_count] = parse_frame(line, line_number);
+            Frame frame = parse_frame(line, line_number);
+            validate_frame(frame, line_number);
+            if (frame_count > 0 && frame.seq != frames[frame_count - 1].seq + 1) {
+                std::cerr << "error: seq gap at line " << line_number
+                          << ": expected " << (frames[frame_count - 1].seq + 1)
+                          << ", got " << frame.seq << '\n';
+                std::exit(1);
+            }
+            frames[frame_count] = frame;
             ++frame_count;
         }
     }
