@@ -6,21 +6,24 @@
       "name": "debug",
       "displayName": "Debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
+      "sourceDir": "${sourceDir}/c++",
+      "binaryDir": "${sourceDir}/c++/build/debug",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
     {
       "name": "release",
       "displayName": "Release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
+      "sourceDir": "${sourceDir}/c++",
+      "binaryDir": "${sourceDir}/c++/build/release",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     },
     {
       "name": "relwithdebinfo",
       "displayName": "RelWithDebInfo",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/relwithdebinfo",
+      "sourceDir": "${sourceDir}/c++",
+      "binaryDir": "${sourceDir}/c++/build/relwithdebinfo",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ],
@@ -28,10 +31,5 @@
     { "name": "debug",          "configurePreset": "debug" },
     { "name": "release",        "configurePreset": "release" },
     { "name": "relwithdebinfo", "configurePreset": "relwithdebinfo" }
-  ],
-  "testPresets": [
-    { "name": "debug",          "configurePreset": "debug",          "outputOnFailure": true },
-    { "name": "release",        "configurePreset": "release",        "outputOnFailure": true },
-    { "name": "relwithdebinfo", "configurePreset": "relwithdebinfo", "outputOnFailure": true }
   ]
 }
