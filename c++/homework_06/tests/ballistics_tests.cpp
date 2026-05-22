@@ -1,11 +1,6 @@
 #include "ballistics.hpp"
 
 #include <gtest/gtest.h>
-#include <cmath>
-
-static bool near(double a, double b, double eps = 0.5) {
-    return std::fabs(a - b) < eps;
-}
 
 TEST(Ballistics, UnknownAmmoReturnsInvalid) {
     BInput in{0, 0, 50, 300, 400, 80, 0, "UNKNOWN"};
@@ -53,6 +48,14 @@ TEST(Ballistics, M67Ok) {
     BInput in{0, 0, 30, 200, 0, 60, 0, "M67"};
     BResult r = compute(in);
     EXPECT_TRUE(r.ok);
+}
+
+TEST(Ballistics, Hw1ReferenceDropPoint) {
+    BInput in{100, 100, 100, 200, 200, 10, 10, "VOG-17"};
+    BResult r = compute(in);
+    ASSERT_TRUE(r.ok);
+    EXPECT_NEAR(r.fire_x, 173.759, 0.5);
+    EXPECT_NEAR(r.fire_y, 173.759, 0.5);
 }
 
 TEST(Ballistics, AllAmmoTypes) {
