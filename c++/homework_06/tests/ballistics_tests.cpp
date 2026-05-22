@@ -55,6 +55,14 @@ TEST(Ballistics, M67Ok) {
     EXPECT_TRUE(r.ok);
 }
 
+TEST(Ballistics, Hw1ReferenceDropPoint) {
+    BInput in{100, 100, 100, 200, 200, 10, 10, "VOG-17"};
+    BResult r = compute(in);
+    ASSERT_TRUE(r.ok);
+    EXPECT_NEAR(r.fire_x, 173.759, 0.5);
+    EXPECT_NEAR(r.fire_y, 173.759, 0.5);
+}
+
 TEST(Ballistics, AllAmmoTypes) {
     const char* types[] = {"VOG-17", "M67", "RKG-3", "GLIDING-VOG", "GLIDING-RKG"};
     for (const char* t : types) {
