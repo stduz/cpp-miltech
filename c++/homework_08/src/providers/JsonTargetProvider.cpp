@@ -7,10 +7,10 @@ bool JsonTargetProvider::load(const std::string& path) {
     if (!f) return false;
     nlohmann::json j;
     f >> j;
-    for (const auto& item : j.arr_) {
+    for (size_t i = 0; i < j.size(); i++) {
         Target t{};
-        t.pos.x = item["x"].get<double>();
-        t.pos.y = item["y"].get<double>();
+        t.pos.x = j[i]["x"].get<double>();
+        t.pos.y = j[i]["y"].get<double>();
         t.pos.z = 0.0;
         targets_.push_back(t);
     }
