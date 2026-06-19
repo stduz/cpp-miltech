@@ -18,12 +18,13 @@ int main(int argc, char** argv) {
         fprintf(stderr, "error: failed to create components\n");
         return 1;
     }
-
     if (!loader->load(argv[1])) {
         fprintf(stderr, "error: failed to load config: %s\n", argv[1]);
         return 1;
     }
     Config cfg = loader->getConfig();
+    AmmoParams ammo = loader->getAmmoParams();
+    (void)ammo;
 
     ThreadSafeTargetProvider targets;
     if (!targets.load(argv[2])) {
@@ -34,8 +35,7 @@ int main(int argc, char** argv) {
     DronePhysics physics;
     physics.init(cfg.drone, cfg.speed, 0.0);
 
-    auto loader2 = ComponentFactory::createLoader(LoaderType::FILE);
-    MissionProcessor mission(std::move(solver), std::move(loader2), &targets, &physics);
+    MissionProcessor mission(std::move(solver), std::move(loader), &targets, &physics);
     if (!mission.init(argv[1])) {
         fprintf(stderr, "error: failed to init mission\n");
         return 1;
@@ -46,8 +46,25 @@ int main(int argc, char** argv) {
     mission.start();
 
     double totalTime = 10.0;
-    std::this_thread::sleep_for(
-        std::chrono::duration<double>(totalTime / cfg.timeScale));
+    auto end = std::chrono::steady_clock::now() +
+               std::chrono::duration<double>(totalTime / cfg.timeScale);
+
+    while (std::chrono::steady_clock::now() < end) {
+        FireResult r{};
+        if (mission.results().try_pop(r)) {
+            printf("T=%.3f ", r.timestamp);
+            if (!r.dp.ok) {
+                printf("INVALID\n");
+            } else if (r.dp.has_maneuver) {
+                printf("FIRE %.2f %.2f MANEUVER %.2f %.2f\n",
+                       r.dp.x, r.dp.y, r.dp.man_x, r.dp.man_y);
+            } else {
+                printf("FIRE %.2f %.2f\n", r.dp.x, r.dp.y);
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
 
     mission.stop();
     physics.stop();

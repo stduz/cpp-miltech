@@ -20,7 +20,6 @@ private:
     std::vector<InitTarget> init_;
     std::vector<Target> current_;
     mutable std::mutex mu_;
-    std::atomic<bool> started_{false};
     std::atomic<bool> running_{false};
     std::thread thread_;
     double simTime_{0.0};

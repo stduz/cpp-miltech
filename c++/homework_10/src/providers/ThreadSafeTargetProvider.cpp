@@ -36,7 +36,6 @@ bool ThreadSafeTargetProvider::load(const std::string& path) {
 void ThreadSafeTargetProvider::start(double timeStep, double timeScale) {
     if (running_.load()) return;
     running_ = true;
-    started_ = true;
     thread_ = std::thread(&ThreadSafeTargetProvider::run, this, timeStep, timeScale);
 }
 

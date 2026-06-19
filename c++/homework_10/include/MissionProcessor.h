@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include "threading/ThreadSafeQueue.h"
 #include <memory>
 #include <string>
 #include <atomic>
@@ -9,6 +10,12 @@ class ITargetProvider;
 class IBallisticSolver;
 class IConfigLoader;
 class IDronePhysics;
+
+struct FireResult {
+    double timestamp;
+    int target_idx;
+    DropPoint dp;
+};
 
 class MissionProcessor {
 public:
@@ -20,6 +27,7 @@ public:
     bool init(const std::string& path);
     void start();
     void stop();
+    ThreadSafeQueue<FireResult>& results();
 
 private:
     std::unique_ptr<IBallisticSolver> solver_;
@@ -30,7 +38,7 @@ private:
     AmmoParams ammo_;
     std::atomic<bool> running_{false};
     std::thread thread_;
-    double simTime_{0.0};
+    ThreadSafeQueue<FireResult> results_;
 
     void run();
 };

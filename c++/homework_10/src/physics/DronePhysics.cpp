@@ -1,6 +1,7 @@
 #include "physics/DronePhysics.h"
 #include <chrono>
 #include <cmath>
+#include <numbers>
 
 DronePhysics::~DronePhysics() { stop(); }
 
@@ -31,7 +32,7 @@ void DronePhysics::run(double timeStep, double timeScale) {
         std::this_thread::sleep_until(next);
         next += realStep;
         std::lock_guard<std::mutex> lk(mu_);
-        double rad = heading_ * M_PI / 180.0;
+        double rad = heading_ * std::numbers::pi / 180.0;
         pos_.x += speed_ * std::cos(rad) * timeStep;
         pos_.y += speed_ * std::sin(rad) * timeStep;
         timestamp_ += timeStep;

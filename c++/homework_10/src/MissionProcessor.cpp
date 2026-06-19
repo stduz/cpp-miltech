@@ -19,7 +19,6 @@ bool MissionProcessor::init(const std::string& path) {
     if (!loader_->load(path)) return false;
     cfg_ = loader_->getConfig();
     ammo_ = loader_->getAmmoParams();
-    simTime_ = 0.0;
     return true;
 }
 
@@ -34,6 +33,8 @@ void MissionProcessor::stop() {
     if (thread_.joinable()) thread_.join();
 }
 
+ThreadSafeQueue<FireResult>& MissionProcessor::results() { return results_; }
+
 void MissionProcessor::run() {
     using clock = std::chrono::steady_clock;
     auto realStep = std::chrono::duration<double>(cfg_.simTimeStep / cfg_.timeScale);
@@ -46,21 +47,11 @@ void MissionProcessor::run() {
         DroneTelemetry tel = physics_->getTelemetry();
         int n = targets_->getTargetCount();
 
-        printf("T=%.3f\n", tel.timestamp);
         for (int i = 0; i < n; i++) {
             Target tgt = targets_->getTarget(i);
             DropPoint dp = solver_->solve(tel.pos, tgt.pos,
-                                          cfg_.speed, cfg_.apath, ammo_);
-            if (!dp.ok) {
-                printf("INVALID\n");
-                continue;
-            }
-            if (dp.has_maneuver)
-                printf("FIRE %.2f %.2f MANEUVER %.2f %.2f\n",
-                       dp.x, dp.y, dp.man_x, dp.man_y);
-            else
-                printf("FIRE %.2f %.2f\n", dp.x, dp.y);
+                                          tel.speed, cfg_.apath, ammo_);
+            results_.push({tel.timestamp, i, dp});
         }
-        simTime_ += cfg_.simTimeStep;
     }
 }
