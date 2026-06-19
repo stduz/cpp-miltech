@@ -1,15 +1,18 @@
 #pragma once
-#include "interfaces/ITargetProvider.h"
-#include "interfaces/IBallisticSolver.h"
-#include "interfaces/IConfigLoader.h"
+#include "Types.h"
 #include <memory>
 #include <string>
+
+class ITargetProvider;
+class IBallisticSolver;
+class IConfigLoader;
 
 class MissionProcessor {
 public:
     MissionProcessor(std::unique_ptr<ITargetProvider> t,
                      std::unique_ptr<IBallisticSolver> s,
                      std::unique_ptr<IConfigLoader> l);
+    ~MissionProcessor();
     bool init(const std::string& path);
     bool hasNext();
     DropPoint step();
@@ -20,6 +23,7 @@ private:
     std::unique_ptr<IBallisticSolver> solver_;
     std::unique_ptr<IConfigLoader> loader_;
     int idx_;
+    double time_;
     Config cfg_;
     AmmoParams ammo_;
 };
