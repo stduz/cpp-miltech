@@ -23,8 +23,6 @@ int main(int argc, char** argv) {
         return 1;
     }
     Config cfg = loader->getConfig();
-    AmmoParams ammo = loader->getAmmoParams();
-    (void)ammo;
 
     ThreadSafeTargetProvider targets;
     if (!targets.load(argv[2])) {
