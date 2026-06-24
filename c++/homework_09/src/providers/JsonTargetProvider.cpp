@@ -3,10 +3,12 @@
 #include <fstream>
 
 bool JsonTargetProvider::load(const std::string& path) {
+    targets_.clear();
     std::ifstream f(path);
     if (!f) return false;
     nlohmann::json j;
     f >> j;
+    targets_.reserve(j.size());
     for (size_t i = 0; i < j.size(); i++) {
         Target t{};
         t.pos.x = j[i]["x"].get<double>();
