@@ -8,6 +8,8 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <thread>
+#include <atomic>
 
 using namespace dlink;
 
@@ -34,7 +36,7 @@ static void send_control(int fd, float accel, float turn) {
     write(fd, out, m);
 }
 
-static void pulse_drop(gpiod_line* line) {
+static void async_drop(gpiod_line* line) {
     gpiod_line_set_value(line, 1);
     usleep(80000);
     gpiod_line_set_value(line, 0);
@@ -47,8 +49,8 @@ int main(int argc, char** argv) {
     int drop_line_n  = 23;
 
     for (int i = 1; i < argc; i++) {
-        if      (!strcmp(argv[i], "--uart")       && i+1 < argc) uart_dev    = argv[++i];
-        else if (!strcmp(argv[i], "--gpiochip")   && i+1 < argc) chip_name   = argv[++i];
+        if      (!strcmp(argv[i], "--uart")       && i+1 < argc) uart_dev     = argv[++i];
+        else if (!strcmp(argv[i], "--gpiochip")   && i+1 < argc) chip_name    = argv[++i];
         else if (!strcmp(argv[i], "--start-line") && i+1 < argc) start_line_n = atoi(argv[++i]);
         else if (!strcmp(argv[i], "--drop-line")  && i+1 < argc) drop_line_n  = atoi(argv[++i]);
     }
@@ -86,7 +88,7 @@ int main(int argc, char** argv) {
 
     Navigator nav;
     Parser parser;
-    bool dropped = false;
+    std::atomic<bool> dropped{false};
     uint8_t buf[256];
     uint8_t payload[260];
     uint8_t ptype, plen;
@@ -96,22 +98,22 @@ int main(int argc, char** argv) {
         if (n <= 0) { usleep(1000); continue; }
         for (int i = 0; i < n; i++) {
             if (!parser.feed(buf[i], ptype, payload, plen)) continue;
-            if (ptype == PKT_AMMO) {
+
+            if (ptype == PKT_AMMO && plen >= (uint8_t)sizeof(AmmoCfg)) {
                 AmmoCfg a;
                 memcpy(&a, payload, sizeof a);
                 nav.setAmmo(a);
-            } else if (ptype == PKT_TARGET) {
+            } else if (ptype == PKT_TARGET && plen >= (uint8_t)sizeof(TargetPos)) {
                 TargetPos t;
                 memcpy(&t, payload, sizeof t);
                 nav.updateTarget(t);
-            } else if (ptype == PKT_TELEMETRY) {
+            } else if (ptype == PKT_TELEMETRY && plen >= (uint8_t)sizeof(Telemetry)) {
                 Telemetry tel;
                 memcpy(&tel, payload, sizeof tel);
                 NavCmd cmd = nav.compute(tel);
                 send_control(fd, cmd.accel, cmd.turnRate);
-                if (cmd.drop && !dropped) {
-                    dropped = true;
-                    pulse_drop(gpio_drop);
+                if (cmd.drop && !dropped.exchange(true)) {
+                    std::thread([gpio_drop]() { async_drop(gpio_drop); }).detach();
                 }
             }
         }

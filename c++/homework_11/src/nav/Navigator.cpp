@@ -72,7 +72,7 @@ NavCmd Navigator::compute(const dlink::Telemetry& tel) const {
     float ldx = lead_x - tel.x;
     float ldy = lead_y - tel.y;
 
-    float desired = atan2f(ldy, ldx);
+    float desired = (ldx*ldx + ldy*ldy > 1.0f) ? atan2f(ldy, ldx) : atan2f(dy, dx);
     float err = desired - tel.dir;
     while (err >  PI_F) err -= 2*PI_F;
     while (err < -PI_F) err += 2*PI_F;
