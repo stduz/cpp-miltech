@@ -2,6 +2,9 @@
 #include "config/ComponentFactory.h"
 #include "providers/ThreadSafeTargetProvider.h"
 #include "physics/DronePhysics.h"
+#include "interfaces/IBallisticSolver.h"
+#include "interfaces/IConfigLoader.h"
+#include "interfaces/ITargetProvider.h"
 #include <cstdio>
 #include <chrono>
 #include <thread>

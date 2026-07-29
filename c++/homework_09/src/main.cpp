@@ -1,5 +1,8 @@
 #include "MissionProcessor.h"
 #include "config/ComponentFactory.h"
+#include "interfaces/IBallisticSolver.h"
+#include "interfaces/ITargetProvider.h"
+#include "interfaces/IConfigLoader.h"
 #include <cstdio>
 #include <string>
 

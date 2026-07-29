@@ -35,6 +35,7 @@ DropPoint AnalyticalSolver::solve(const Vec3& drone, const Vec3& tgt,
                                    const AmmoParams& p) {
     DropPoint r{};
     double m = p.mass, d = p.drag, l = p.lift, v = speed, z = drone.z;
+    if (z <= 0.0) return r;
     double ac = d * G * m - 2.0 * d * d * l * v;
     double bc = -3.0 * G * m * m + 3.0 * d * l * m * v;
     double cc = 6.0 * m * m * z;
