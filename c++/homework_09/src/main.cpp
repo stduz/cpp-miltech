@@ -13,6 +13,11 @@ int main(int argc, char** argv) {
     auto provider = ComponentFactory::createProvider(ProviderType::JSON, argv[2]);
     auto loader = ComponentFactory::createLoader(LoaderType::FILE);
 
+    if (!solver || !provider || !loader) {
+        fprintf(stderr, "error: failed to create components\n");
+        return 1;
+    }
+
     MissionProcessor mission(std::move(provider), std::move(solver), std::move(loader));
     if (!mission.init(argv[1])) {
         fprintf(stderr, "error: failed to load config: %s\n", argv[1]);

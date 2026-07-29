@@ -10,3 +10,4 @@ void DroneController::update() {
 }
 
 const DroneContext& DroneController::context() const { return ctx_; }
+const char* DroneController::stateName() const { return state_->name(); }

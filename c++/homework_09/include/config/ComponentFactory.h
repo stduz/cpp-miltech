@@ -1,9 +1,10 @@
 #pragma once
-#include "interfaces/IBallisticSolver.h"
-#include "interfaces/ITargetProvider.h"
-#include "interfaces/IConfigLoader.h"
 #include <memory>
 #include <string>
+
+class IBallisticSolver;
+class ITargetProvider;
+class IConfigLoader;
 
 enum class SolverType { ANALYTICAL, TABLE };
 enum class ProviderType { JSON };

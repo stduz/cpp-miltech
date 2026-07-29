@@ -7,6 +7,7 @@ public:
     explicit DroneController(DroneContext ctx);
     void update();
     const DroneContext& context() const;
+    const char* stateName() const;
 private:
     DroneContext ctx_;
     std::unique_ptr<IDroneState> state_;
