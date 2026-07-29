@@ -1,5 +1,8 @@
 #include "solvers/AnalyticalSolver.h"
 #include "config/ComponentFactory.h"
+#include "interfaces/IBallisticSolver.h"
+#include "interfaces/ITargetProvider.h"
+#include "interfaces/IConfigLoader.h"
 #include <gtest/gtest.h>
 
 TEST(AnalyticalSolver, Hw1ReferencePoint) {
