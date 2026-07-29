@@ -109,7 +109,7 @@ TEST(Navigator, AlwaysFullAccel) {
 TEST(Navigator, MultiTargetPicksNearest) {
     Navigator nav;
     nav.setAmmo(make_ammo(15.0f));
-    nav.updateTarget({0, 100.0f,  0.0f});  // north, near
+    nav.updateTarget({0, 0.0f,  100.0f});  // north, near
     nav.updateTarget({1, 0.0f, -2000.0f}); // south, far
     // Drone at origin flying east — nearest is id=0 (north), so should turn left
     auto cmd = nav.compute(make_tel(0.0f, 0.0f, 100.0f, 15.0f, 0.0f));

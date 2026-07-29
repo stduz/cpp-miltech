@@ -52,12 +52,17 @@ BResult compute(const BInput& in) {
 
     double m = MASS[idx], d = DRAG[idx], l = LIFT[idx];
     double v = in.speed, z = in.z;
+    if (z <= 0.0) return r;
 
-    double ac = d * G * m - 2.0 * d * d * l * v;
-    double bc = -3.0 * G * m * m + 3.0 * d * l * m * v;
-    double cc = 6.0 * m * m * z;
-
-    double t = flight_time(ac, bc, cc);
+    double t;
+    if (l > 0.0) {
+        t = sqrt(2.0 * z / G);
+    } else {
+        double ac = d * G * m - 2.0 * d * d * l * v;
+        double bc = -3.0 * G * m * m + 3.0 * d * l * m * v;
+        double cc = 6.0 * m * m * z;
+        t = flight_time(ac, bc, cc);
+    }
     if (t <= 0.0) return r;
 
     double h = horiz_dist(t, v, m, d, l);
