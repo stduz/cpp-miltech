@@ -1,4 +1,3 @@
-#define CPPHTTPLIB_OPENSSL_SUPPORT 0
 #include <httplib.h>
 #include <cstdio>
 #include <fstream>
@@ -28,7 +27,7 @@ static std::string slurp(const std::string& path) {
 }
 
 static bool ok2xx(int s) { return s >= 200 && s < 300; }
-static bool retryable(int s) { return s == 503 || s == 0; }
+static bool retryable(int s) { return s == 502 || s == 503 || s == 0; }
 
 static httplib::Client make_cli() {
     httplib::Client cli(HOST, PORT);

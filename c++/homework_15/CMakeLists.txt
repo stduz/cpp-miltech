@@ -1,14 +1,13 @@
 include(FetchContent)
 
-FetchContent_Declare(
-    httplib
-    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG        v0.15.3
+file(DOWNLOAD
+    https://raw.githubusercontent.com/yhirose/cpp-httplib/v0.15.3/httplib.h
+    ${CMAKE_CURRENT_BINARY_DIR}/httplib.h
+    TLS_VERIFY ON
 )
-FetchContent_MakeAvailable(httplib)
 
 add_executable(hw15_poster src/main.cpp)
-target_link_libraries(hw15_poster PRIVATE httplib::httplib)
+target_include_directories(hw15_poster PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options(hw15_poster PRIVATE -Wall -Wextra -pedantic)
 
 add_custom_command(TARGET hw15_poster POST_BUILD
