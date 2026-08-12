@@ -213,6 +213,7 @@ int main(int argc, char** argv) {
     bool  dropped    = false;
     int   drop_tries = 0;
     bool  ack_ok     = false;
+    State drop_state{};
     clk::time_point drop_time{};
     clk::time_point last_hb  = clk::now();
     clk::time_point step_due = clk::now();
@@ -263,12 +264,13 @@ int main(int argc, char** argv) {
 
         // Drop logic
         if (cmd.drop && !dropped) {
-            dropped = true;
+            dropped    = true;
+            drop_state = st;
             printf("[hw17] DROP at t=%.2f pos=(%.1f,%.1f) dir=%.2f v=%.1f\n",
                    st.t_ms / 1000.0f, st.x, st.y, st.dir, st.speed);
-            send_command_long(s, dest, st, 0);
-            drop_tries  = 1;
-            drop_time   = clk::now();
+            send_command_long(s, dest, drop_state, 0);
+            drop_tries = 1;
+            drop_time  = clk::now();
         }
 
         if (dropped && !ack_ok && drop_tries <= MAX_RETRIES) {
@@ -282,11 +284,11 @@ int main(int argc, char** argv) {
                     if (drop_tries < MAX_RETRIES) {
                         drop_tries++;
                         printf("[hw17] retry %d/%d\n", drop_tries, MAX_RETRIES);
-                        send_command_long(s, dest, st, (uint8_t)(drop_tries - 1));
+                        send_command_long(s, dest, drop_state, (uint8_t)(drop_tries - 1));
                         drop_time = clk::now();
                     } else {
                         printf("[hw17] ACK not received after %d attempts\n", MAX_RETRIES);
-                        ack_ok = true; // give up, but keep sending telemetry
+                        ack_ok = true;
                     }
                 }
             }
