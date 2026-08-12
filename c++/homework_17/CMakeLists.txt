@@ -11,7 +11,7 @@ include(FetchContent)
 FetchContent_Declare(
     mavlink_c_library
     GIT_REPOSITORY https://github.com/mavlink/c_library_v2.git
-    GIT_TAG        main
+    GIT_TAG        master
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(mavlink_c_library)
